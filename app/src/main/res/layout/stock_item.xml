@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!--
-        将两个组件的宽度填满屏幕，并且两者者的宽度按比例分配，最好是用权重实现（layout_weight）：
+        将两个组件的宽度填满屏幕，并且两者的宽度按比例分配，最好是用权重实现（layout_weight）：
      -->
     <ImageView
         android:id="@+id/stock_image"
@@ -14,7 +14,7 @@
     <TextView
         android:id="@+id/stock_info"
         android:layout_width="0dp"
-        android:layout_weight="2.5"
+        android:layout_weight="2.7"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginLeft="10dip" />

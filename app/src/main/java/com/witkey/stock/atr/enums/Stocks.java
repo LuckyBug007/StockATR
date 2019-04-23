@@ -13,7 +13,11 @@ public enum Stocks {
     HUALAN("华兰生物", "002007.SZ", R.drawable.sz002007),
     TIANTAN("天坛生物", "600161.SS", R.drawable.sh600161),
     HAIKANG("海康威视", "002415.SZ", R.drawable.sz002415),
-    SHENNAN("深南电路", "002916.SZ", R.drawable.sz002916);
+    SHENNAN("深南电路", "002916.SZ", R.drawable.sz002916),
+    GONGHANG("工商银行", "601398.SS", R.drawable.sh601398),
+    JIANHANG("建设银行", "601939.SS", R.drawable.sh601939),
+    NONGHANG("农业银行", "601288.SS", R.drawable.sh601288),
+    ZHAOHANG("招商银行", "600036.SS", R.drawable.sh600036);
     private String name;
     private String no;
     private Integer imageId;

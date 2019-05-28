@@ -7,7 +7,8 @@ import com.witkey.stock.atr.R;
 public enum Stocks {
     MAOTAI("贵州茅台", "600519.SS", R.drawable.sh600519),
     YANGHE("洋河股份", "002304.SZ", R.drawable.sz002304),
-    GUJINGGONG("古井贡酒", "000596.SZ", R.drawable.sz000596),
+//    GUJINGGONG("古井贡酒", "000596.SZ", R.drawable.sz000596),
+    CHUNQIU("春秋航空", "601021.SS", R.drawable.sh601021),
     FENZHONG("分众传媒", "002027.SZ", R.drawable.sz002027),
     CHONGBAI("重庆百货", "600729.SS", R.drawable.sh600729),
     HUALAN("华兰生物", "002007.SZ", R.drawable.sz002007),

@@ -1,5 +1,6 @@
 package com.witkey.stock.atr;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ImmutableMap;
 import com.witkey.stock.atr.model.StockKline;
 
@@ -25,6 +27,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 public class ATRActivity extends AppCompatActivity {
@@ -34,6 +39,10 @@ public class ATRActivity extends AppCompatActivity {
     private Button button;
 
     private TextView atrInfo;
+
+    @SuppressLint("SimpleDateFormat")
+    private static final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,31 +94,46 @@ public class ATRActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * ATR平均真实波幅（ATR）的计算方法：
+     *  1、当前交易日的最高价与最低价间的波幅
+     *  2、前一交易日收盘价与当个交易日最高价间的波幅
+     *  3、前一交易日收盘价与当个交易日最低价间的波幅
+     *
+     * @param stockName
+     * @param stockNo
+     * @param days
+     * @return
+     */
     private String calATR(String stockName, String stockNo, String days) {
-        Map<String, String> params = ImmutableMap.of("data_count", days, "prod_code", stockNo);
+        Map<String, String> params = ImmutableMap.of("tick_count", days, "prod_code", stockNo);
         String response = requestGet(params);
 
+        int openIdx = 0, closeIdx = 1, highIdx = 2, lowIdx = 3, dateIdx = 4;
         StringBuilder builder = new StringBuilder();
         try {
             StockKline stockKline = JSON.parseObject(response, StockKline.class);
-            JSONArray lists = stockKline.getData().getCandle().getJSONArray(stockNo);
+            JSONObject lineObj = stockKline.getData().getCandle().getJSONObject(stockNo);
+            JSONArray lines = lineObj.getJSONArray("lines");
 
             double sum = 0;
             double lastClose = Double.MAX_VALUE;
-            for (int i = 1; i < lists.size(); i++) {
-                JSONArray preDay = lists.getJSONArray(i - 1);
-                double preDayClose = preDay.getDoubleValue(2);
+            for (int i = 1; i < lines.size(); i++) {
+                JSONArray preDay = lines.getJSONArray(i - 1);
+                double preDayClose = preDay.getDoubleValue(closeIdx);
 
-                JSONArray today = lists.getJSONArray(i);
-                double todayHigh = today.getDoubleValue(3);
-                double todayLow = today.getDoubleValue(4);
-                lastClose = today.getDoubleValue(2);
+                JSONArray today = lines.getJSONArray(i);
+                double todayHigh = today.getDoubleValue(highIdx);
+                double todayLow = today.getDoubleValue(lowIdx);
+                lastClose = today.getDoubleValue(closeIdx);
 
                 double tr = Math.max(Math.abs(todayHigh - todayLow),
                         Math.abs(todayHigh - preDayClose));
                 tr = Math.max(tr, Math.abs(preDayClose - todayLow));
 
-                builder.append(String.format("%s ============> %s元\n", today.getInteger(0), String.format("%.2f", tr)));
+                Long seconds = today.getLong(dateIdx);
+                Date date = new Date(seconds * 1000);
+                builder.append(String.format("%s ============> %s元\n", formatter.format(date), String.format("%.2f", tr)));
 
                 sum += tr;
             }
@@ -136,8 +160,11 @@ public class ATRActivity extends AppCompatActivity {
     private String requestGet(Map<String, String> paramsMap) {
         String result = null;
         try {
+            // tick_count=5&prod_code=002057.SZ
+            String baseUrl = "https://api-ddc-wscn.xuangubao.cn/market/kline?adjust_price_type=forward&period_type=86400&fields=tick_at,open_px,close_px,high_px,low_px";
+
             // &data_count={days}   &prod_code={stockNo}
-            String baseUrl = "https://mdc.wallstreetcn.com/kline?candle_period=6&fields=min_time,open_px,close_px,high_px,low_px&adjust_price_type=forward";
+            // String baseUrl = "https://mdc.wallstreetcn.com/kline?candle_period=6&fields=min_time,open_px,close_px,high_px,low_px&adjust_price_type=forward";
             StringBuilder tempParams = new StringBuilder();
             for (String key : paramsMap.keySet()) {
                 tempParams.append("&");
